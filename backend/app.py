@@ -4,8 +4,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 import numpy as np
+from flask_cors import CORS
+import os
 
 app = Flask(__name__)
+CORS(app)
 
 FEATURE_NAMES = [
     "Pregnancies",
@@ -17,7 +20,6 @@ FEATURE_NAMES = [
     "Diabetes Pedigree Function",
     "Age",
 ]
-
 
 def create_model():
     X, y = make_classification(
@@ -34,13 +36,11 @@ def create_model():
     model.fit(X, y)
     return model
 
-
 model = create_model()
 
-
-
-
-from flask import Flask, request, jsonify
+@app.route("/")
+def home():
+    return "Backend is running"
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -60,52 +60,14 @@ def predict():
     input_data = np.array([values])
     probability = model.predict_proba(input_data)[0][1]
 
-    prediction = "High risk" if probability >= 0.5 else "Low risk"
+    prediction = "High risk of diabetes" if probability >= 0.5 else "Low risk of diabetes"
 
     return jsonify({
         "prediction": prediction,
         "probability": round(probability * 100, 2)
     })
-    except ValueError:
-        return render_template(
-            "result.html",
-            prediction=None,
-            probability=None,
-            error="Please enter valid numeric values for all fields.",
-            values={},
-        )
 
-    input_data = np.array([values])
-    probability = model.predict_proba(input_data)[0][1]
-    prediction = "High risk of diabetes" if probability >= 0.5 else "Low risk of diabetes"
-
-    return render_template(
-        "result.html",
-        prediction=prediction,
-        probability=f"{probability * 100:.1f}%",
-        values={
-            "Pregnancies": values[0],
-            "Glucose": values[1],
-            "Blood Pressure": values[2],
-            "Skin Thickness": values[3],
-            "Insulin": values[4],
-            "BMI": values[5],
-            "Diabetes Pedigree Function": values[6],
-            "Age": values[7],
-        },
-        error=None,
-    )
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-import os
-
+# IMPORTANT FOR RENDER
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-    @app.route("/")
-def home():
-    return "Backend is running"

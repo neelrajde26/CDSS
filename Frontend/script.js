@@ -11,7 +11,7 @@ async function predict() {
   };
 
   try {
-    const response = await fetch("https://your-backend.onrender.com/predict", {
+    const response = await fetch("https://cdss-8eqd.onrender.com", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

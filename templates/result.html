@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="page-container">
+        <main>
+            <section class="result-header">
+                <p class="eyebrow">Result</p>
+                <h1>Your Prediction</h1>
+                <p class="hero-copy">The model scored your values and estimated risk based on the provided measurements.</p>
+            </section>
+
+            <div class="card result-card">
+                {% if error %}
+                    <p class="error">{{ error }}</p>
+                {% else %}
+                    <div class="result-badge {% if "High" in prediction %}high-risk{% else %}low-risk{% endif %}">{{ prediction }}</div>
+                    <p class="probability">Predicted chance: <strong>{{ probability }}</strong></p>
+                    <div class="value-list">
+                        {% for label, value in values.items() %}
+                            <div class="value-row">
+                                <span>{{ label }}</span>
+                                <strong>{{ value }}</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="action-row">
+                    <a href="/" class="button secondary">Try again</a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Deploy this app with Python / Flask on any hosting provider.</p>
+        </footer>
+    </div>
+</body>
+</html>

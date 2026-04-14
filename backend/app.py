@@ -40,6 +40,8 @@ model = create_model()
 
 
 
+from flask import Flask, request, jsonify
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
@@ -58,7 +60,7 @@ def predict():
     input_data = np.array([values])
     probability = model.predict_proba(input_data)[0][1]
 
-    prediction = "High risk of diabetes" if probability >= 0.5 else "Low risk of diabetes"
+    prediction = "High risk" if probability >= 0.5 else "Low risk"
 
     return jsonify({
         "prediction": prediction,
@@ -97,3 +99,13 @@ def predict():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+import os
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+    @app.route("/")
+def home():
+    return "Backend is running"

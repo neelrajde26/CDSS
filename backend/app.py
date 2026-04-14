@@ -21,6 +21,27 @@ FEATURE_NAMES = [
     "Age",
 ]
 
+def run_prediction(data):
+    values = [
+        float(data["pregnancies"]),
+        float(data["glucose"]),
+        float(data["blood_pressure"]),
+        float(data["skin_thickness"]),
+        float(data["insulin"]),
+        float(data["bmi"]),
+        float(data["diabetes_pedigree"]),
+        float(data["age"]),
+    ]
+
+    input_data = np.array([values])
+    probability = model.predict_proba(input_data)[0][1]
+    prediction = "High risk of diabetes" if probability >= 0.5 else "Low risk of diabetes"
+
+    return jsonify({
+        "prediction": prediction,
+        "probability": round(probability * 100, 2),
+    })
+
 def create_model():
     X, y = make_classification(
         n_samples=800,
@@ -38,34 +59,17 @@ def create_model():
 
 model = create_model()
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
+    if request.method == "POST":
+        data = request.get_json()
+        return run_prediction(data)
     return "Backend is running"
 
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
-
-    values = [
-        float(data["pregnancies"]),
-        float(data["glucose"]),
-        float(data["blood_pressure"]),
-        float(data["skin_thickness"]),
-        float(data["insulin"]),
-        float(data["bmi"]),
-        float(data["diabetes_pedigree"]),
-        float(data["age"]),
-    ]
-
-    input_data = np.array([values])
-    probability = model.predict_proba(input_data)[0][1]
-
-    prediction = "High risk of diabetes" if probability >= 0.5 else "Low risk of diabetes"
-
-    return jsonify({
-        "prediction": prediction,
-        "probability": round(probability * 100, 2)
-    })
+    return run_prediction(data)
 
 # IMPORTANT FOR RENDER
 if __name__ == "__main__":
